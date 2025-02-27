@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+    # Optional: Add environment variables if needed
+    # environment:
+    #   - DATABASE_URL=your_database_url
+    #   - API_KEY=your_api_key
