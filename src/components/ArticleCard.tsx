@@ -1,4 +1,7 @@
-export default function ArticleCard({ article }) {
+/* eslint-disable @next/next/no-img-element */
+import { Article } from '@/types';
+
+export default function ArticleCard({ article }: { article: Article }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -13,12 +16,16 @@ export default function ArticleCard({ article }) {
       {article.image && (
         <div className="h-48 overflow-hidden">
           <img
-            src={article.image}
+            src={
+              article.image ??
+              'https://placehold.co/600x400/EEE/31343C?font=raleway&text=News'
+            }
             alt={article.title}
             className="h-full w-full object-cover"
-            onError={(e) => {
-              e.target.onerror = null;
-              //   e.target.src = '/placeholder-news.jpg';
+            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src =
+                'https://placehold.co/600x400/EEE/31343C?font=raleway&text=News';
             }}
           />
         </div>
@@ -38,6 +45,10 @@ export default function ArticleCard({ article }) {
             {article.description}
           </p>
         )}
+
+        <span className="text-sm font-medium text-gray-600">
+          {article.author}
+        </span>
 
         <div className="mt-auto pt-4">
           <a

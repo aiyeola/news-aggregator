@@ -1,6 +1,16 @@
-import ArticleCard from './ArticleCard';
+import ArticleCard from '@/components/ArticleCard';
+import { Button } from '@/components/ui/button';
+import { Article } from '@/types';
 
-export default function ArticleList({ articles, loading, onLoadMore }) {
+export default function ArticleList({
+  articles,
+  loading,
+  onLoadMore,
+}: {
+  articles: Article[];
+  loading: boolean;
+  onLoadMore: () => void;
+}) {
   if (loading && articles.length === 0) {
     return (
       <div className="flex justify-center p-12">
@@ -21,8 +31,8 @@ export default function ArticleList({ articles, loading, onLoadMore }) {
 
   return (
     <div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {articles.map((article) => (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article: Article) => (
           <ArticleCard key={article.id} article={article} />
         ))}
       </div>
@@ -34,13 +44,13 @@ export default function ArticleList({ articles, loading, onLoadMore }) {
       )}
 
       <div className="mt-8 text-center">
-        <button
+        <Button
           onClick={onLoadMore}
           className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
           disabled={loading}
         >
           Load More
-        </button>
+        </Button>
       </div>
     </div>
   );

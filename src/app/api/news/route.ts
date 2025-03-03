@@ -1,35 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  Article,
+  ArticleResponse,
+  NewsApiResponse,
+  GuardianResponse,
+  NYTResponse,
+} from '@/types';
 
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
 const GUARDIAN_API_KEY = process.env.GUARDIAN_API_KEY;
 const NEW_YORK_TIMES_API_KEY = process.env.NEW_YORK_TIMES_API_KEY;
 
-interface Source {
-  id: string | null;
-  name: string;
-  type: 'NewsAPI' | 'Guardian' | 'NYT';
-}
-
-interface Article {
-  id: string;
-  title: string;
-  description: string | null;
-  url: string;
-  image: string | null;
-  publishedAt: string;
-  source: Source;
-  author: string | null;
-}
-
-interface ArticleResponse {
-  articles: Article[];
-}
-
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
 
-  console.log('sources', searchParams.get('sources'));
   const query = searchParams.get('query');
   const category = searchParams.get('category');
   const sources = searchParams.get('sources')?.split(',');
@@ -41,24 +26,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Fetch from multiple sources in parallel
     const responses = await Promise.allSettled([
       // NewsAPI
-      //       sources?.includes('newsapi') || !sources
-      //         ? fetchFromNewsAPI(query, category, fromDate, toDate, page)
-      //         : { articles: [] },
-      //
-      //       // The Guardian
-      //       sources?.includes('guardian') || !sources
-      //         ? fetchFromGuardian(query, category, fromDate, toDate, page)
-      //         : { articles: [] },
-      //
-      //       // New York Times
-      //       sources?.includes('nyt') || !sources
-      //         ? fetchFromNYT(query, category, fromDate, toDate, page)
-      //         : { articles: [] },
+      sources?.includes('newsapi') || !sources
+        ? fetchFromNewsAPI(query, category, fromDate, toDate, page)
+        : { articles: [] },
 
-      { articles: [] },
+      // The Guardian
+      sources?.includes('guardian') || !sources
+        ? fetchFromGuardian(query, category, fromDate, toDate, page)
+        : { articles: [] },
+
+      // New York Times
+      sources?.includes('nyt') || !sources
+        ? fetchFromNYT(query, category, fromDate, toDate, page)
+        : { articles: [] },
+
+      //   { articles: [] },
     ]);
 
-    // Combine and format results
     const articles: Article[] = [];
 
     responses.forEach((response) => {
@@ -67,7 +51,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
     });
 
-    // Sort by date (newest first)
     articles.sort(
       (a, b) =>
         new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
@@ -81,26 +64,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       { status: 500 },
     );
   }
-}
-
-// NewsAPI interfaces
-interface NewsApiArticle {
-  source: {
-    id: string | null;
-    name: string;
-  };
-  author: string | null;
-  title: string;
-  description: string | null;
-  url: string;
-  urlToImage: string | null;
-  publishedAt: string;
-}
-
-interface NewsApiResponse {
-  articles: NewsApiArticle[];
-  status: string;
-  totalResults: number;
 }
 
 async function fetchFromNewsAPI(
@@ -135,7 +98,6 @@ async function fetchFromNewsAPI(
         id: article.url,
         title: article.title,
         description: article.description,
-        // content: article.content,
         url: article.url,
         image: article.urlToImage,
         publishedAt: article.publishedAt,
@@ -151,31 +113,6 @@ async function fetchFromNewsAPI(
     console.error('NewsAPI error:', error);
     return { articles: [] };
   }
-}
-
-// Guardian interfaces
-interface GuardianField {
-  headline?: string;
-  trailText?: string;
-  body?: string;
-  thumbnail?: string;
-  publication?: string;
-  lastModified?: string;
-  byline?: string;
-}
-
-interface GuardianArticle {
-  id: string;
-  webTitle: string;
-  webUrl: string;
-  webPublicationDate: string;
-  fields?: GuardianField;
-}
-
-interface GuardianResponse {
-  response: {
-    results: GuardianArticle[];
-  };
 }
 
 async function fetchFromGuardian(
@@ -209,7 +146,6 @@ async function fetchFromGuardian(
         id: article.id,
         title: article.webTitle,
         description: article.fields?.trailText || null,
-        // content: article.fields?.body || null,
         url: article.webUrl,
         image: article.fields?.thumbnail || null,
         publishedAt: article.webPublicationDate,
@@ -225,36 +161,6 @@ async function fetchFromGuardian(
     console.error('Guardian API error:', error);
     return { articles: [] };
   }
-}
-
-// NYT interfaces
-interface NYTHeadline {
-  main: string;
-}
-
-interface NYTByline {
-  original: string | null;
-}
-
-interface NYTMultimedia {
-  url: string;
-}
-
-interface NYTArticle {
-  _id: string;
-  headline: NYTHeadline;
-  abstract: string | null;
-  lead_paragraph: string | null;
-  web_url: string;
-  multimedia: NYTMultimedia[];
-  pub_date: string;
-  byline?: NYTByline;
-}
-
-interface NYTResponse {
-  response: {
-    docs: NYTArticle[];
-  };
 }
 
 async function fetchFromNYT(

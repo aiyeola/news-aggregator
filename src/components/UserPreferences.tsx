@@ -1,6 +1,13 @@
 import { useState } from 'react';
+import { UserPreference } from '@/types';
 
-export default function UserPreferences({ preferences, onPreferencesChange }) {
+export default function UserPreferences({
+  preferences,
+  onPreferencesChange,
+}: {
+  preferences: UserPreference;
+  onPreferencesChange: (value: UserPreference) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const categories = [
@@ -19,20 +26,23 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
     { id: 'nyt', name: 'New York Times' },
   ];
 
-  const handleCategoryChange = (e) => {
-    const { value, checked } = e.target;
-    let updatedCategories = [...preferences.preferredCategories];
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
 
-    if (checked) {
-      updatedCategories.push(value);
+    if (preferences.preferredCategory === value) {
+      onPreferencesChange({
+        ...preferences,
+        preferredCategory: '',
+      });
     } else {
-      updatedCategories = updatedCategories.filter((cat) => cat !== value);
+      onPreferencesChange({
+        ...preferences,
+        preferredCategory: value,
+      });
     }
-
-    onPreferencesChange({ preferredCategories: updatedCategories });
   };
 
-  const handleSourceChange = (e) => {
+  const handleSourceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     let updatedSources = [...preferences.preferredSources];
 
@@ -42,7 +52,10 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
       updatedSources = updatedSources.filter((source) => source !== value);
     }
 
-    onPreferencesChange({ preferredSources: updatedSources });
+    onPreferencesChange({
+      ...preferences,
+      preferredSources: updatedSources,
+    });
   };
 
   const togglePreferences = () => {
@@ -83,14 +96,14 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
           </div>
 
           <div className="mb-4">
-            <h3 className="mb-2 font-medium">Preferred Categories</h3>
+            <h3 className="mb-2 font-medium">Preferred Category</h3>
             {categories.map((category) => (
               <div key={category} className="mb-1 flex items-center">
                 <input
                   type="checkbox"
                   id={`pref-category-${category}`}
                   value={category}
-                  checked={preferences.preferredCategories.includes(category)}
+                  checked={preferences.preferredCategory === category}
                   onChange={handleCategoryChange}
                   className="mr-2"
                 />
@@ -107,7 +120,7 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
       ) : (
         <div>
           {preferences.preferredSources.length === 0 &&
-          preferences.preferredCategories.length === 0 ? (
+          preferences.preferredCategory.length === 0 ? (
             <p className="text-gray-500">
               No preferences set yet. Click Edit to customize your news feed.
             </p>
@@ -118,21 +131,19 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
                   <p className="font-medium">Sources:</p>
                   <p>
                     {preferences.preferredSources
-                      .map((id) => sources.find((s) => s.id === id)?.name)
+                      .map(
+                        (id: string) => sources.find((s) => s.id === id)?.name,
+                      )
                       .filter(Boolean)
                       .join(', ')}
                   </p>
                 </div>
               )}
 
-              {preferences.preferredCategories.length > 0 && (
+              {preferences.preferredCategory.length > 0 && (
                 <div>
-                  <p className="font-medium">Categories:</p>
-                  <p>
-                    {preferences.preferredCategories
-                      .map((cat) => cat.charAt(0).toUpperCase() + cat.slice(1))
-                      .join(', ')}
-                  </p>
+                  <p className="font-medium">Category:</p>
+                  <p className="capitalize">{preferences.preferredCategory}</p>
                 </div>
               )}
             </div>

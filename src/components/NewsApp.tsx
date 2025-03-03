@@ -1,14 +1,13 @@
-import { useState, useEffect } from 'react';
-import ArticleList from './ArticleList';
-import NewsFilters from './NewsFilters';
-import UserPreferences from './UserPreferences';
-import axios from 'axios';
+import { useState, useEffect, useMemo } from 'react';
+import ArticleList from '@/components/ArticleList';
+import NewsFilters from '@/components/NewsFilters';
+import UserPreferences from '@/components/UserPreferences';
+import { UserPreference, Filters } from '@/types';
+import { useGetNews } from '@/api/news';
 
 export default function NewsApp() {
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     query: '',
     category: '',
     sources: [],
@@ -17,10 +16,26 @@ export default function NewsApp() {
     page: 1,
   });
 
-  const [userPrefs, setUserPrefs] = useState({
+  const [userPrefs, setUserPrefs] = useState<UserPreference>({
     preferredSources: [],
-    preferredCategories: [],
+    preferredCategory: '',
   });
+
+  const { data, isLoading, isError } = useGetNews(filters);
+
+  const articles = useMemo(() => {
+    if (data) {
+      return data?.articles;
+    }
+
+    return [];
+  }, [data]);
+
+  useEffect(() => {
+    if (isError) {
+      setError('Failed to fetch articles. Please try again later.');
+    }
+  }, [isError]);
 
   useEffect(() => {
     const savedPrefs = localStorage.getItem('newsPreferences');
@@ -30,6 +45,7 @@ export default function NewsApp() {
       setFilters((prev) => ({
         ...prev,
         sources: JSON.parse(savedPrefs).preferredSources,
+        category: JSON.parse(savedPrefs).preferredCategory,
       }));
     }
   }, []);
@@ -38,37 +54,22 @@ export default function NewsApp() {
     localStorage.setItem('newsPreferences', JSON.stringify(userPrefs));
   }, [userPrefs]);
 
-  //   useEffect(() => {
-  //     fetchArticles();
-  //   }, [filters]);
-
-  console.log('filters: ', filters);
-  const fetchArticles = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await axios.get('/api/news', { params: filters });
-      setArticles(response.data.articles);
-    } catch (err) {
-      setError('Failed to fetch articles. Please try again later.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilterChange = (newFilters) => {
+  const handleFilterChange = (newFilters: Filters) => {
     setFilters({ ...filters, ...newFilters, page: 1 });
   };
 
-  const handlePreferencesChange = (newPrefs) => {
+  const handlePreferencesChange = (newPrefs: UserPreference) => {
     setUserPrefs({ ...userPrefs, ...newPrefs });
 
     if (newPrefs.preferredSources) {
       setFilters((prev) => ({
         ...prev,
         sources: newPrefs.preferredSources,
+      }));
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        category: newPrefs.preferredCategory,
       }));
     }
   };
@@ -94,7 +95,7 @@ export default function NewsApp() {
           <NewsFilters filters={filters} onFilterChange={handleFilterChange} />
         </div>
 
-        <div className="lg:col-span-3">
+        <div className="md:h-[85dvh] md:overflow-y-scroll lg:col-span-3">
           {error && (
             <div className="mb-4 border-l-4 border-red-500 bg-red-100 p-4 text-red-700">
               {error}
@@ -103,7 +104,7 @@ export default function NewsApp() {
 
           <ArticleList
             articles={articles}
-            loading={loading}
+            loading={isLoading}
             onLoadMore={loadMore}
           />
         </div>
