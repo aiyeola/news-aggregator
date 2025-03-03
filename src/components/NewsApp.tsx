@@ -4,24 +4,21 @@ import NewsFilters from '@/components/NewsFilters';
 import UserPreferences from '@/components/UserPreferences';
 import { UserPreference, Filters } from '@/types';
 import { useGetNews } from '@/api/news';
+import { filterState, newsPreferences } from '@/constants';
 
 export default function NewsApp() {
   const [error, setError] = useState<null | string>(null);
-  const [filters, setFilters] = useState<Filters>({
-    query: '',
-    category: '',
-    sources: [],
-    fromDate: '',
-    toDate: '',
-    page: 1,
-  });
+  const [filters, setFilters] = useState<Filters>(filterState);
 
   const [userPrefs, setUserPrefs] = useState<UserPreference>({
     preferredSources: [],
     preferredCategory: '',
   });
 
-  const { data, isLoading, isError } = useGetNews(filters);
+  const { data, isLoading, isError } = useGetNews({
+    ...filters,
+    sources: filters.sources?.join(','),
+  });
 
   const articles = useMemo(() => {
     if (data) {
@@ -38,7 +35,7 @@ export default function NewsApp() {
   }, [isError]);
 
   useEffect(() => {
-    const savedPrefs = localStorage.getItem('newsPreferences');
+    const savedPrefs = localStorage.getItem(newsPreferences);
     if (savedPrefs) {
       setUserPrefs(JSON.parse(savedPrefs));
 
@@ -51,7 +48,7 @@ export default function NewsApp() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('newsPreferences', JSON.stringify(userPrefs));
+    localStorage.setItem(newsPreferences, JSON.stringify(userPrefs));
   }, [userPrefs]);
 
   const handleFilterChange = (newFilters: Filters) => {

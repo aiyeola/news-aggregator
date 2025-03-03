@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { UserPreference } from '@/types';
+import { categories, sources } from '@/constants';
 
 export default function UserPreferences({
   preferences,
@@ -9,22 +10,6 @@ export default function UserPreferences({
   onPreferencesChange: (value: UserPreference) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const categories = [
-    'business',
-    'entertainment',
-    'general',
-    'health',
-    'science',
-    'sports',
-    'technology',
-  ];
-
-  const sources = [
-    { id: 'newsapi', name: 'NewsAPI' },
-    { id: 'guardian', name: 'The Guardian' },
-    { id: 'nyt', name: 'New York Times' },
-  ];
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;

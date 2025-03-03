@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Filters } from '@/types';
+import { categories, sources, filterState } from '@/constants';
 
 export default function NewsFilters({
   filters,
@@ -12,22 +13,6 @@ export default function NewsFilters({
   const [value, setValue] = useState('');
 
   const debounceValue = useDebounce(value);
-
-  const categories = [
-    'business',
-    'entertainment',
-    'general',
-    'health',
-    'science',
-    'sports',
-    'technology',
-  ];
-
-  const sources = [
-    { id: 'newsapi', name: 'NewsAPI' },
-    { id: 'guardian', name: 'The Guardian' },
-    { id: 'nyt', name: 'New York Times' },
-  ];
 
   useEffect(() => {
     onFilterChange({
@@ -65,14 +50,7 @@ export default function NewsFilters({
   };
 
   const handleClearFilters = () => {
-    onFilterChange({
-      query: '',
-      category: '',
-      sources: [],
-      fromDate: '',
-      toDate: '',
-      page: 1,
-    });
+    onFilterChange(filterState);
   };
 
   return (

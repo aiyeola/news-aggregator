@@ -9,7 +9,9 @@ export const useGetNews = ({
   fromDate,
   toDate,
   page,
-}: Filters) =>
+}: Omit<Filters, 'sources'> & {
+  sources: string;
+}) =>
   useQuery({
     queryKey: ['get_news', query, category, sources, fromDate, toDate, page],
     queryFn: ({ signal }) =>

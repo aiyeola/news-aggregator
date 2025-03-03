@@ -39,8 +39,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       sources?.includes('nyt') || !sources
         ? fetchFromNYT(query, category, fromDate, toDate, page)
         : { articles: [] },
-
-      //   { articles: [] },
     ]);
 
     const articles: Article[] = [];
