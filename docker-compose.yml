@@ -8,7 +8,5 @@ services:
     ports:
       - '3000:3000'
     restart: unless-stopped
-    # Optional: Add environment variables if needed
-    # environment:
-    #   - DATABASE_URL=your_database_url
-    #   - API_KEY=your_api_key
+    env_file:
+      - .env
