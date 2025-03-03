@@ -94,8 +94,11 @@ export default function UserPreferences({ preferences, onPreferencesChange }) {
                   onChange={handleCategoryChange}
                   className="mr-2"
                 />
-                <label htmlFor={`pref-category-${category}`}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                <label
+                  htmlFor={`pref-category-${category}`}
+                  className="capitalize"
+                >
+                  {category}
                 </label>
               </div>
             ))}

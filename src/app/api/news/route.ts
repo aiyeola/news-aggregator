@@ -29,6 +29,7 @@ interface ArticleResponse {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
 
+  console.log('sources', searchParams.get('sources'));
   const query = searchParams.get('query');
   const category = searchParams.get('category');
   const sources = searchParams.get('sources')?.split(',');
@@ -40,19 +41,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Fetch from multiple sources in parallel
     const responses = await Promise.allSettled([
       // NewsAPI
-      sources?.includes('newsapi') || !sources
-        ? fetchFromNewsAPI(query, category, fromDate, toDate, page)
-        : { articles: [] },
+      //       sources?.includes('newsapi') || !sources
+      //         ? fetchFromNewsAPI(query, category, fromDate, toDate, page)
+      //         : { articles: [] },
+      //
+      //       // The Guardian
+      //       sources?.includes('guardian') || !sources
+      //         ? fetchFromGuardian(query, category, fromDate, toDate, page)
+      //         : { articles: [] },
+      //
+      //       // New York Times
+      //       sources?.includes('nyt') || !sources
+      //         ? fetchFromNYT(query, category, fromDate, toDate, page)
+      //         : { articles: [] },
 
-      // The Guardian
-      sources?.includes('guardian') || !sources
-        ? fetchFromGuardian(query, category, fromDate, toDate, page)
-        : { articles: [] },
-
-      // New York Times
-      sources?.includes('nyt') || !sources
-        ? fetchFromNYT(query, category, fromDate, toDate, page)
-        : { articles: [] },
+      { articles: [] },
     ]);
 
     // Combine and format results

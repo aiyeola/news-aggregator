@@ -38,10 +38,11 @@ export default function NewsApp() {
     localStorage.setItem('newsPreferences', JSON.stringify(userPrefs));
   }, [userPrefs]);
 
-  useEffect(() => {
-    fetchArticles();
-  }, [filters]);
+  //   useEffect(() => {
+  //     fetchArticles();
+  //   }, [filters]);
 
+  console.log('filters: ', filters);
   const fetchArticles = async () => {
     setLoading(true);
     setError(null);

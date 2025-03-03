@@ -18,7 +18,7 @@ export default function ArticleCard({ article }) {
             className="h-full w-full object-cover"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/placeholder-news.jpg';
+              //   e.target.src = '/placeholder-news.jpg';
             }}
           />
         </div>
