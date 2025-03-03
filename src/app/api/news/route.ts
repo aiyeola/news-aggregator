@@ -108,7 +108,11 @@ async function fetchFromNewsAPI(
       })),
     };
   } catch (error) {
-    console.error('NewsAPI error:', error);
+    console.error(
+      'NewsAPI error:',
+      JSON.stringify((error as Error).message, null, 4),
+    );
+
     return { articles: [] };
   }
 }
