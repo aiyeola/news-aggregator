@@ -6,11 +6,6 @@ const nextConfig: NextConfig = {
 
   // Recommended settings for Next.js 15
   reactStrictMode: true,
-
-  // Optional: Configure image domains if using Next.js Image component
-  // images: {
-  //   domains: ['example.com'],
-  // },
 };
 
 export default nextConfig;
